@@ -1,0 +1,11 @@
+[Unit]
+Description=FFmpeg Stream für Kamera {{CAM_NUM}}
+After=network.target
+
+[Service]
+ExecStart={{SCRIPT_PATH}}
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target

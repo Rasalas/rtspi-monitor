@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Tapo Kameras</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            background-color: #000;
+        }
+        video {
+            width: 50%;
+            height: 50%;
+        }
+    </style>
+</head>
+<body>
+<!-- VIDEO ELEMENTS -->
+<!-- Die Video-Elemente werden vom Installationsskript hinzugefügt -->
+
+<script>
+    function loadStream(videoElementId, streamUrl) {
+        if (Hls.isSupported()) {
+            var video = document.getElementById(videoElementId);
+            var hls = new Hls();
+            hls.loadSource(streamUrl);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                video.play();
+            });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = streamUrl;
+            video.addEventListener('loadedmetadata', function() {
+                video.play();
+            });
+        }
+    }
+
+    // LOAD STREAMS
+    // Die Lade-Skripte werden vom Installationsskript hinzugefügt
+</script>
+</body>
+</html>
