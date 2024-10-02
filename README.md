@@ -10,19 +10,19 @@ Dieses Projekt richtet einen Raspberry Pi ein, um RTSP-Streams von Tapo-Kameras 
 git clone https://github.com/Rasalas/rtspi-monitor.git
 ```
 
-1. Wechsele in das Verzeichnis:
+2. Wechsele in das Verzeichnis:
 
 ```bash
 cd rtspi-monitor
 ```
 
-1. Dupliziere die `cameras.example.conf` und entferne das `.example` aus dem Dateinamen:
+3. Dupliziere die `cameras.example.conf` und entferne das `.example` aus dem Dateinamen:
 
 ```bash
 cp cameras.example.conf cameras.conf
 ```
 
-1. Führe das Installationsskript aus:
+4. Führe das Installationsskript aus:
 
 ```bash
 sudo ./install.sh
