@@ -62,8 +62,10 @@ EOF
     cp "$SCRIPT_DIR/services/ffmpeg_cam.service.template" $SERVICE_FILE
     sed -i "s/{{CAM_NUM}}/$CAM_NUM/g" $SERVICE_FILE
     sed -i "s#{{SCRIPT_PATH}}#$HOME_DIR/scripts/ffmpeg_cam$CAM_NUM.sh#g" $SERVICE_FILE
+    sed -i "s/{{USERNAME}}/$USERNAME/g" $SERVICE_FILE
 
     # Aktiviere und starte Dienst
+    systemctl daemon-reload
     systemctl enable ffmpeg_cam$CAM_NUM.service
     systemctl start ffmpeg_cam$CAM_NUM.service
 
