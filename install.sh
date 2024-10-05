@@ -63,14 +63,18 @@ VIDEO_ELEMENTS=""
 LOAD_SCRIPTS=""
 while IFS='|' read -r CAM_NUM USERNAME PASSWORD IP_ADDRESS
 do
-    VIDEO_ELEMENTS+="    <!-- Kamera $CAM_NUM -->\n    <video id=\"video$CAM_NUM\" controls autoplay muted></video>"
-    LOAD_SCRIPTS+="    loadStream('video$CAM_NUM', 'hls/cam$CAM_NUM/stream.m3u8');"
+    VIDEO_ELEMENTS+="    <!-- Kamera $CAM_NUM -->"$'\n'"    <video id=\"video$CAM_NUM\" controls autoplay muted></video>"$'\n'
+    LOAD_SCRIPTS+="        loadStream('video$CAM_NUM', 'hls/cam$CAM_NUM/stream.m3u8');"$'\n'
 done < "$CAMERAS_FILE"
 
 # Aktualisiere index.html
 INDEX_FILE="/var/www/html/index.html"
+
+# Füge Video-Elemente ein
 sed -i "/<!-- VIDEO ELEMENTS -->/r /dev/stdin" $INDEX_FILE <<< "$VIDEO_ELEMENTS"
-sed -i "/\/\/ LOAD STREAMS/r /dev/stdin" $INDEX_FILE <<< "$LOAD_SCRIPTS"
+
+# Füge JavaScript-Ladefunktionen ein
+sed -i "/\/\/ LOAD STREAMS/a $LOAD_SCRIPTS" $INDEX_FILE
 
 echo "Konfiguriere Autostart des Browsers..."
 AUTOSTART_FILE="/home/pi/.config/lxsession/LXDE-pi/autostart"
