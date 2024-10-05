@@ -30,6 +30,10 @@ cp -r "$SCRIPT_DIR/website/"* /var/www/html/
 chown -R "$USERNAME:$USERNAME" "$HOME_DIR/scripts"
 chown -R www-data:www-data /var/www/html
 
+# Setze Ausführungsrechte für Skripte
+chmod +x "$HOME_DIR/scripts/start_browser.sh"
+chmod +x "$HOME_DIR/scripts/"*.sh
+
 echo "Lese Kamerakonfigurationen..."
 CAMERAS_FILE="$SCRIPT_DIR/cameras.conf"
 if [ ! -f "$CAMERAS_FILE" ]; then
@@ -48,7 +52,10 @@ do
 
     # Erstelle Verzeichnis für HLS-Stream
     mkdir -p /var/www/html/hls/cam$CAM_NUM
-    chown -R www-data:www-data /var/www/html/hls/cam$CAM_NUM
+
+    # Setze Eigentümer und Berechtigungen für das HLS-Verzeichnis
+    chown -R "$USERNAME":www-data /var/www/html/hls/cam$CAM_NUM
+    chmod -R 775 /var/www/html/hls/cam$CAM_NUM
 
     # Erstelle FFmpeg-Skript
     cat <<EOF > "$HOME_DIR/scripts/ffmpeg_cam$CAM_NUM.sh"
