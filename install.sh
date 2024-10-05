@@ -60,7 +60,7 @@ do
     # Erstelle FFmpeg-Skript
     cat <<EOF > "$HOME_DIR/scripts/ffmpeg_cam$CAM_NUM.sh"
 #!/bin/bash
-ffmpeg -i rtsp://$USERNAME_CAM:$PASSWORD@$IP_ADDRESS:554/stream2 -c:v copy -c:a copy -f hls -hls_time 0.5 -hls_list_size 3 -hls_flags delete_segments+append_list /var/www/html/hls/cam$CAM_NUM/stream.m3u8
+ffmpeg -i rtsp://$USERNAME_CAM:$PASSWORD@$IP_ADDRESS:554/stream2 -c:v copy -c:a copy -f hls -hls_time 0.5 -hls_list_size 2 -hls_flags delete_segments+append_list+omit_endlist -hls_segment_type mpegts -hls_init_time 0 -hls_segment_filename /var/www/html/hls/cam$CAM_NUM/stream%03d.ts /var/www/html/hls/cam$CAM_NUM/stream.m3u8
 EOF
     chmod +x "$HOME_DIR/scripts/ffmpeg_cam$CAM_NUM.sh"
 

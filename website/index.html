@@ -26,13 +26,18 @@
             var video = document.getElementById(videoElementId);
             var hls = new Hls({
                 liveSyncDurationCount: 1,
-                maxLiveSyncPlaybackRate: 1.0,
-                liveMaxLatencyDurationCount: 3,
+                maxLiveSyncPlaybackRate: 1.5,
+                liveMaxLatencyDurationCount: 2,
+                lowLatencyMode: true,
+                backBufferLength: 0,
+                maxBufferLength: 2,
+                maxMaxBufferLength: 2,
             });
             hls.loadSource(streamUrl);
             hls.attachMedia(video);
             hls.on(Hls.Events.MANIFEST_PARSED, function() {
                 video.play();
+                monitorPlayback(video, hls);
             });
         } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
             video.src = streamUrl;
@@ -40,6 +45,16 @@
                 video.play();
             });
         }
+    }
+
+    function monitorPlayback(video, hls) {
+        setInterval(() => {
+            if (video.currentTime > 0 && hls.latency > 3) {
+                video.playbackRate = 1.5;
+            } else {
+                video.playbackRate = 1.0;
+            }
+        }, 1000);
     }
 
     // LOAD STREAMS
