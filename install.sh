@@ -32,6 +32,11 @@ fi
 
 while IFS='|' read -r CAM_NUM USERNAME PASSWORD IP_ADDRESS
 do
+    # Überspringe leere Zeilen oder Zeilen, die mit '#' beginnen
+    if [[ -z "$CAM_NUM" ]] || [[ "$CAM_NUM" =~ ^\s*# ]]; then
+        continue
+    fi
+
     echo "Richte Kamera $CAM_NUM ein..."
 
     # Erstelle Verzeichnis für HLS-Stream
@@ -63,6 +68,11 @@ VIDEO_ELEMENTS=""
 LOAD_SCRIPTS=""
 while IFS='|' read -r CAM_NUM USERNAME PASSWORD IP_ADDRESS
 do
+    # Überspringe leere Zeilen oder Zeilen, die mit '#' beginnen
+    if [[ -z "$CAM_NUM" ]] || [[ "$CAM_NUM" =~ ^\s*# ]]; then
+        continue
+    fi
+
     VIDEO_ELEMENTS+="    <!-- Kamera $CAM_NUM -->"$'\n'"    <video id=\"video$CAM_NUM\" controls autoplay muted></video>"$'\n'
     LOAD_SCRIPTS+="        loadStream('video$CAM_NUM', 'hls/cam$CAM_NUM/stream.m3u8');"$'\n'
 done < "$CAMERAS_FILE"
