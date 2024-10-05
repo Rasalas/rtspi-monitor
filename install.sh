@@ -93,7 +93,7 @@ INDEX_FILE="/var/www/html/index.html"
 sed -i "/<!-- VIDEO ELEMENTS -->/r /dev/stdin" $INDEX_FILE <<< "$VIDEO_ELEMENTS"
 
 # Füge JavaScript-Ladefunktionen ein
-sed -i "/\/\/ LOAD STREAMS/a $LOAD_SCRIPTS" $INDEX_FILE
+sed -i "/\/\/ LOAD STREAMS/r /dev/stdin" $INDEX_FILE <<< "$LOAD_SCRIPTS"
 
 echo "Konfiguriere Autostart des Browsers..."
 AUTOSTART_FILE="$HOME_DIR/.config/lxsession/LXDE-pi/autostart"
