@@ -24,7 +24,11 @@
     function loadStream(videoElementId, streamUrl) {
         if (Hls.isSupported()) {
             var video = document.getElementById(videoElementId);
-            var hls = new Hls();
+            var hls = new Hls({
+                liveSyncDurationCount: 1,
+                maxLiveSyncPlaybackRate: 1.0,
+                liveMaxLatencyDurationCount: 3,
+            });
             hls.loadSource(streamUrl);
             hls.attachMedia(video);
             hls.on(Hls.Events.MANIFEST_PARSED, function() {
