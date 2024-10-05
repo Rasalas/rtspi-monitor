@@ -63,8 +63,8 @@ VIDEO_ELEMENTS=""
 LOAD_SCRIPTS=""
 while IFS='|' read -r CAM_NUM USERNAME PASSWORD IP_ADDRESS
 do
-    VIDEO_ELEMENTS+="    <!-- Kamera $CAM_NUM -->\n    <video id=\"video$CAM_NUM\" controls autoplay muted></video>\n"
-    LOAD_SCRIPTS+="    loadStream('video$CAM_NUM', 'hls/cam$CAM_NUM/stream.m3u8');\n"
+    VIDEO_ELEMENTS+="    <!-- Kamera $CAM_NUM -->\n    <video id=\"video$CAM_NUM\" controls autoplay muted></video>"
+    LOAD_SCRIPTS+="    loadStream('video$CAM_NUM', 'hls/cam$CAM_NUM/stream.m3u8');"
 done < "$CAMERAS_FILE"
 
 # Aktualisiere index.html
