@@ -22,6 +22,16 @@ cd rtspi-monitor
 cp cameras.example.conf cameras.conf
 ```
 
+4. Passe die Kamera-Zugangsdaten in der `cameras.conf an`
+```bash
+nano cameras.conf
+```
+
+4. Mache das Installationsskript ausführbar
+```bash
+chmod +x ./install.sh
+```
+
 4. Führe das Installationsskript aus:
 
 ```bash
