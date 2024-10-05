@@ -6,6 +6,13 @@ if [ "$EUID" -ne 0 ]; then
     exit
 fi
 
+# Ermitteln des aktuellen Benutzernamens und Home-Verzeichnisses
+USERNAME=$(logname)
+HOME_DIR="/home/$USERNAME"
+
+# Ermitteln des Skript-Verzeichnisses
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 echo "System wird aktualisiert..."
 apt update && apt upgrade -y
 
@@ -14,23 +21,23 @@ apt install -y ffmpeg nginx chromium-browser
 
 echo "Erstelle Verzeichnisse..."
 mkdir -p /var/www/html/hls
-mkdir -p /home/pi/scripts
-mkdir -p /home/pi/services
+mkdir -p "$HOME_DIR/scripts"
+mkdir -p "$HOME_DIR/services"
 
 echo "Kopiere Skripte und Website..."
-cp -r scripts/* /home/pi/scripts/
-cp -r website/* /var/www/html/
-chown -R pi:pi /home/pi/scripts
+cp -r "$SCRIPT_DIR/scripts/"* "$HOME_DIR/scripts/"
+cp -r "$SCRIPT_DIR/website/"* /var/www/html/
+chown -R "$USERNAME:$USERNAME" "$HOME_DIR/scripts"
 chown -R www-data:www-data /var/www/html
 
 echo "Lese Kamerakonfigurationen..."
-CAMERAS_FILE="cameras.conf"
+CAMERAS_FILE="$SCRIPT_DIR/cameras.conf"
 if [ ! -f "$CAMERAS_FILE" ]; then
     echo "Die Datei $CAMERAS_FILE wurde nicht gefunden!"
     exit 1
 fi
 
-while IFS='|' read -r CAM_NUM USERNAME PASSWORD IP_ADDRESS
+while IFS='|' read -r CAM_NUM USERNAME_CAM PASSWORD IP_ADDRESS
 do
     # Überspringe leere Zeilen oder Zeilen, die mit '#' beginnen
     if [[ -z "$CAM_NUM" ]] || [[ "$CAM_NUM" =~ ^\s*# ]]; then
@@ -44,17 +51,17 @@ do
     chown -R www-data:www-data /var/www/html/hls/cam$CAM_NUM
 
     # Erstelle FFmpeg-Skript
-    cat <<EOF > /home/pi/scripts/ffmpeg_cam$CAM_NUM.sh
+    cat <<EOF > "$HOME_DIR/scripts/ffmpeg_cam$CAM_NUM.sh"
 #!/bin/bash
-ffmpeg -i rtsp://$USERNAME:$PASSWORD@$IP_ADDRESS:554/stream1 -c:v copy -c:a copy -f hls -hls_time 2 -hls_list_size 5 -hls_flags delete_segments+append_list /var/www/html/hls/cam$CAM_NUM/stream.m3u8
+ffmpeg -i rtsp://$USERNAME_CAM:$PASSWORD@$IP_ADDRESS:554/stream1 -c:v copy -c:a copy -f hls -hls_time 2 -hls_list_size 5 -hls_flags delete_segments+append_list /var/www/html/hls/cam$CAM_NUM/stream.m3u8
 EOF
-    chmod +x /home/pi/scripts/ffmpeg_cam$CAM_NUM.sh
+    chmod +x "$HOME_DIR/scripts/ffmpeg_cam$CAM_NUM.sh"
 
     # Erstelle Systemd-Dienst
     SERVICE_FILE="/etc/systemd/system/ffmpeg_cam$CAM_NUM.service"
-    cp services/ffmpeg_cam.service.template $SERVICE_FILE
+    cp "$SCRIPT_DIR/services/ffmpeg_cam.service.template" $SERVICE_FILE
     sed -i "s/{{CAM_NUM}}/$CAM_NUM/g" $SERVICE_FILE
-    sed -i "s#{{SCRIPT_PATH}}#/home/pi/scripts/ffmpeg_cam$CAM_NUM.sh#g" $SERVICE_FILE
+    sed -i "s#{{SCRIPT_PATH}}#$HOME_DIR/scripts/ffmpeg_cam$CAM_NUM.sh#g" $SERVICE_FILE
 
     # Aktiviere und starte Dienst
     systemctl enable ffmpeg_cam$CAM_NUM.service
@@ -66,7 +73,7 @@ echo "Passe Website an..."
 # Generiere dynamisch den HTML-Code basierend auf der Anzahl der Kameras
 VIDEO_ELEMENTS=""
 LOAD_SCRIPTS=""
-while IFS='|' read -r CAM_NUM USERNAME PASSWORD IP_ADDRESS
+while IFS='|' read -r CAM_NUM USERNAME_CAM PASSWORD IP_ADDRESS
 do
     # Überspringe leere Zeilen oder Zeilen, die mit '#' beginnen
     if [[ -z "$CAM_NUM" ]] || [[ "$CAM_NUM" =~ ^\s*# ]]; then
@@ -87,11 +94,11 @@ sed -i "/<!-- VIDEO ELEMENTS -->/r /dev/stdin" $INDEX_FILE <<< "$VIDEO_ELEMENTS"
 sed -i "/\/\/ LOAD STREAMS/a $LOAD_SCRIPTS" $INDEX_FILE
 
 echo "Konfiguriere Autostart des Browsers..."
-AUTOSTART_FILE="/home/pi/.config/lxsession/LXDE-pi/autostart"
-mkdir -p $(dirname "$AUTOSTART_FILE")
-if ! grep -Fxq "@/home/pi/scripts/start_browser.sh" "$AUTOSTART_FILE"
+AUTOSTART_FILE="$HOME_DIR/.config/lxsession/LXDE-pi/autostart"
+mkdir -p "$(dirname "$AUTOSTART_FILE")"
+if ! grep -Fxq "@$HOME_DIR/scripts/start_browser.sh" "$AUTOSTART_FILE"
 then
-    echo "@/home/pi/scripts/start_browser.sh" >> "$AUTOSTART_FILE"
+    echo "@$HOME_DIR/scripts/start_browser.sh" >> "$AUTOSTART_FILE"
 fi
 
 echo "Aktiviere automatischen Login..."
